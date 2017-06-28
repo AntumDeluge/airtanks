@@ -1,5 +1,8 @@
 
-# Air tanks will wear out even in creative mode.
+# If 'enable_tool_wear' is enabled, air tanks will begin to wear out when used.
+airtanks_enable_wear (Wear out when used) bool true
+
+# If 'airtanks_enable_wear' is enabled, air tanks will wear out even in creative mode.
 airtanks_wear_in_creative (Wear out in creative mode) bool true
 
 # Number of uses for steel air tanks.
