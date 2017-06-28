@@ -4,6 +4,22 @@ local print_settingtypes = false
 local CONFIG_FILE_PREFIX = "airtanks_"
 local config = {}
 
+-- Setting for air tanks to wear out & break
+local enable_wear = minetest.settings:get_bool("enable_tool_wear")
+if enable_wear == nil then
+	-- Default is enabled
+	enable_wear = true
+end
+
+-- Check local setting if wear/break is enabled
+if enable_wear then
+	enable_wear = minetest.settings:get_bool("airtanks_enable_wear")
+	if enable_wear == nil then
+		-- Default is enabled
+		enable_wear = true
+	end
+end
+
 local function setting(stype, name, default, description)
 	local value
 	if stype == "bool" then
@@ -73,15 +89,17 @@ local function use_airtank(itemstack, user)
 	minetest.sound_play("airtanks_hiss", {pos = user:get_pos(), gain = 0.5})
 
 	if (not minetest.settings:get_bool("creative_mode")) or config.wear_in_creative then
-		local wdef = itemstack:get_definition()
-		itemstack:add_wear(65535/(wdef._airtanks_uses-1))
-		if itemstack:get_count() == 0 then
-			if wdef.sound and wdef.sound.breaks then
-				minetest.sound_play(wdef.sound.breaks,
-					{pos = user:get_pos(), gain = 0.5})
+		if enable_wear then
+			local wdef = itemstack:get_definition()
+			itemstack:add_wear(65535/(wdef._airtanks_uses-1))
+			if itemstack:get_count() == 0 then
+				if wdef.sound and wdef.sound.breaks then
+					minetest.sound_play(wdef.sound.breaks,
+						{pos = user:get_pos(), gain = 0.5})
+				end
+				local inv = user:get_inventory()
+				itemstack = inv:add_item("main", wdef._airtanks_empty)
 			end
-			local inv = user:get_inventory()
-			itemstack = inv:add_item("main", wdef._airtanks_empty)
 		end
 	end
 	return itemstack
